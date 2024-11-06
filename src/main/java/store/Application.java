@@ -11,5 +11,7 @@ public class Application {
         OutputView outputView = new OutputView();
         List<Product> products = inputView.loadProducts("products.md");
         outputView.printProducts(products);
+        List<Promotion> promotions = inputView.loadPromotions("promotions.md");
+        System.out.println(promotions);
     }
 }

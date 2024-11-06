@@ -4,11 +4,13 @@ import camp.nextstep.edu.missionutils.Console;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import store.Application;
 import store.Product;
+import store.Promotion;
 
 public class InputView {
     public String readItem() {
@@ -38,6 +40,18 @@ public class InputView {
             int quantity = Integer.parseInt(productInfo[2]);
             String promotion = productInfo[3];
             return new Product(name, price, quantity, promotion);
+        });
+    }
+
+    public List<Promotion> loadPromotions(String fileName) {
+        return loadItems(fileName, line -> {
+            String[] productInfo = line.split(",");
+            String name = productInfo[0];
+            int buy = Integer.parseInt(productInfo[1]);
+            int get = Integer.parseInt(productInfo[2]);
+            LocalDate startDate = LocalDate.parse(productInfo[3]);
+            LocalDate endDate = LocalDate.parse(productInfo[4]);
+            return new Promotion(name, buy, get, startDate, endDate);
         });
     }
 
