@@ -45,12 +45,12 @@ public class InputView {
 
     public List<Promotion> loadPromotions(String fileName) {
         return loadItems(fileName, line -> {
-            String[] productInfo = line.split(",");
-            String name = productInfo[0];
-            int buy = Integer.parseInt(productInfo[1]);
-            int get = Integer.parseInt(productInfo[2]);
-            LocalDate startDate = LocalDate.parse(productInfo[3]);
-            LocalDate endDate = LocalDate.parse(productInfo[4]);
+            String[] promotionInfo = line.split(",");
+            String name = promotionInfo[0];
+            int buy = Integer.parseInt(promotionInfo[1]);
+            int get = Integer.parseInt(promotionInfo[2]);
+            LocalDate startDate = LocalDate.parse(promotionInfo[3]);
+            LocalDate endDate = LocalDate.parse(promotionInfo[4]);
             return new Promotion(name, buy, get, startDate, endDate);
         });
     }
