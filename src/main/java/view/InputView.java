@@ -1,10 +1,13 @@
 package view;
 
 import camp.nextstep.edu.missionutils.Console;
+import dto.Status;
+import exception.Exception;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -13,11 +16,25 @@ import store.Product;
 import store.Promotion;
 
 public class InputView {
-    public String readItem() {
-        System.out.println("구매하실 상품명과 수량을 입력해 주세요. (예: [사이다-2],[감자칩-1])");
+
+    private Exception exception = new Exception();
+
+    public List<Product> readItem() {
+        System.out.println("\n구매하실 상품명과 수량을 입력해 주세요. (예: [사이다-2],[감자칩-1])");
         String input = Console.readLine();
-        // ...
-        return null;
+        String[] items = input.split(",");
+        List<Product> buyProducts = new ArrayList<>();
+        for (String item : items) {
+            if (item.indexOf("]") != item.length() - 1 || item.lastIndexOf("[") != 0) {
+                exception.throwException("예: [사이다-2],[감자칩-1] 처럼 입력해주세요");
+            }
+            String cleanInput = item.replace("[", "").replace("]", "");
+            String[] nameAndQuantity = cleanInput.split("-");
+            String name = nameAndQuantity[0];
+            int quantity = Integer.parseInt(nameAndQuantity[1]);
+            buyProducts.add(new Product(name, quantity));
+        }
+        return buyProducts;
     }
 
     public <T> List<T> loadItems(String fileName, Function<String, T> mapper) {
@@ -28,7 +45,7 @@ public class InputView {
                     .map(mapper)
                     .collect(Collectors.toList());
         } catch (IOException e) {
-            throw new RuntimeException("Error reading file: " + fileName, e);
+            throw new RuntimeException("[ERROR] reading file: " + fileName, e);
         }
     }
 
@@ -39,6 +56,9 @@ public class InputView {
             int price = Integer.parseInt(productInfo[1]);
             int quantity = Integer.parseInt(productInfo[2]);
             String promotion = productInfo[3];
+            if ("null".equals(promotion)) {
+                promotion = null;
+            }
             return new Product(name, price, quantity, promotion);
         });
     }
