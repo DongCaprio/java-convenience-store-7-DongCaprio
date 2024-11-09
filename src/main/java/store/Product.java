@@ -50,6 +50,10 @@ public class Product {
         System.out.println(product);
     }
 
+    public void addQuantity(int quantity) {
+        this.quantity += quantity;
+    }
+
 
     public String getName() {
         return name;

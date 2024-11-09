@@ -60,7 +60,33 @@ public class Buyer {
 
     public void checkPromotionApply(List<Product> wantBuyProducts) {
         for (Product wantBuyProduct : wantBuyProducts) {
+            Promotion promotion = promotions.get(products.get(wantBuyProduct.getName()).getFirst().getPromotion());
+            if (promotion != null && promotion.checkPromotionDate(wantBuyProduct)) {
+                int notBringBonus = calculateBonus(promotion.getBuy(), promotion.getGet(),
+                        wantBuyProduct.getQuantity());
+                bringBonus(wantBuyProduct, notBringBonus);
 
+            }
+        }
+    }
+
+    public int calculateBonus(int buy, int get, int purchasedCount) {
+        int bonusCount = 0;
+        if (buy == purchasedCount) {
+            bonusCount = get;
+            return bonusCount;
+        }
+        if (purchasedCount > buy && purchasedCount % (buy + get) == buy) {
+            bonusCount = get;
+            return bonusCount;
+        }
+        return bonusCount;
+    }
+
+    public void bringBonus(Product wantBuyProduct, int notBringBonus) {
+        if (notBringBonus > 0) {
+            outputView.printBringPromotion(wantBuyProduct.getName(), notBringBonus);
+            inputView.addPromotion(wantBuyProduct, notBringBonus);
         }
     }
 

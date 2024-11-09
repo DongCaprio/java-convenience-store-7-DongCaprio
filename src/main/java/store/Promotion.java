@@ -1,6 +1,8 @@
 package store;
 
+import camp.nextstep.edu.missionutils.DateTimes;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class Promotion {
     private String name;
@@ -15,5 +17,33 @@ public class Promotion {
         this.get = get;
         this.startDate = startDate;
         this.endDate = endDate;
+    }
+
+    public boolean checkPromotionDate(Product product) {
+        LocalDateTime now = DateTimes.now();
+        LocalDate currentDate = now.toLocalDate();
+        return !currentDate.isBefore(startDate) && !currentDate.isAfter(endDate);
+    }
+
+    public boolean checkPromotionName(Product product) {
+        return this.name.equals(product.getName());
+    }
+
+    public boolean checkPromotion(Product wantBuyProduct) {
+        boolean promotionApplicability = false;
+        promotionApplicability = checkPromotionDate(wantBuyProduct) && checkPromotionName(wantBuyProduct);
+        return promotionApplicability;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getBuy() {
+        return buy;
+    }
+
+    public int getGet() {
+        return get;
     }
 }
