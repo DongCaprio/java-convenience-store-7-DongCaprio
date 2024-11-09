@@ -54,6 +54,10 @@ public class Product {
         this.quantity += quantity;
     }
 
+    public void subtractQuantity(int quantity) {
+        this.quantity -= quantity;
+    }
+
 
     public String getName() {
         return name;

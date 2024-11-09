@@ -13,7 +13,11 @@ public class Buyer {
     private OutputView outputView;
     private LinkedHashMap<String, List<Product>> products;
     private Map<String, Promotion> promotions;
+
+    private Exception exception = new Exception();
     private List<Product> buyProducts;
+
+    private Status memberShip;
 
     public Buyer() {
         this.inputView = new InputView();
@@ -56,7 +60,68 @@ public class Buyer {
     public void buyProducts() {
         List<Product> wantBuyProducts = inputView.readItem();
         checkPromotionApply(wantBuyProducts);
+        checkCanBuyQuantity(wantBuyProducts);
+        checkNotPromotionApply(wantBuyProducts);
     }
+
+    public void printReceipt() {
+
+    }
+
+    public void applyMemberShip() {
+        outputView.printMemberShip();
+        this.memberShip = inputView.memberShipApply();
+    }
+
+    public void checkCanBuyQuantity(List<Product> wantBuyProducts) {
+        for (Product wantBuyProduct : wantBuyProducts) {
+            int count = 0;
+            List<Product> getProducts = products.get(wantBuyProduct.getName());
+            for (Product p : getProducts) {
+                count += p.getQuantity();
+            }
+            if (wantBuyProduct.getQuantity() > count) {
+                exception.throwException("재고 수량을 초과하여 구매할 수 없습니다. 다시 입력해 주세요.");
+            }
+        }
+    }
+
+    public void checkNotPromotionApply(List<Product> wantBuyProducts) {
+        for (Product wantBuyProduct : wantBuyProducts) {
+            if (products.get(wantBuyProduct.getName()).size() == 1) {
+                continue;
+            }
+            int notPromotionCount = calculateNotPromotionCount(wantBuyProduct);
+            questionPromotionApply(wantBuyProduct, notPromotionCount);
+        }
+    }
+
+    public void questionPromotionApply(Product wantBuyProduct, int notPromotionCount) {
+        if (notPromotionCount > 0) {
+            outputView.printPromotionApply(wantBuyProduct, notPromotionCount);
+            inputView.promotionApply(wantBuyProduct, notPromotionCount);
+        }
+    }
+
+    public int calculateNotPromotionCount(Product wantBuyProduct) {
+        int promotionSetSize = getPromotionSetSize(wantBuyProduct.getName());
+        int canBuyPromotionCount = canBuyPromotionProductCount(wantBuyProduct.getName());
+        int promotionCount = (canBuyPromotionCount / promotionSetSize) * promotionSetSize;
+        return wantBuyProduct.getQuantity() - promotionCount;
+    }
+
+    public int canBuyPromotionProductCount(String productName) {
+        return products.get(productName).getFirst().getQuantity();
+    }
+
+    public int getPromotionSetSize(String productName) {
+        String promotionName = products.get(productName).getFirst().getPromotion();
+        int setSize = 0;
+        Promotion promotion = promotions.get(promotionName);
+        setSize = promotion.getBuy() + promotion.getGet();
+        return setSize;
+    }
+
 
     public void checkPromotionApply(List<Product> wantBuyProducts) {
         for (Product wantBuyProduct : wantBuyProducts) {

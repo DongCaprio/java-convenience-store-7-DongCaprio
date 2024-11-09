@@ -76,13 +76,30 @@ public class InputView {
     }
 
     public void addPromotion(Product wantBuyProduct, int notBringBonus) {
+        String input = checkInputYorN();
+        if (Status.Y == Status.checkStatusInput(input)) {
+            wantBuyProduct.addQuantity(notBringBonus);
+        }
+    }
+
+    public void promotionApply(Product wantBuyProduct, int notPromotionCount) {
+        String input = checkInputYorN();
+        if (Status.N == Status.checkStatusInput(input)) {
+            wantBuyProduct.subtractQuantity(notPromotionCount);
+        }
+    }
+
+    public Status memberShipApply() {
+        String input = checkInputYorN();
+        return Status.checkStatusInput(input);
+    }
+
+    public String checkInputYorN() {
         String input = Console.readLine();
         if (!"Y".equalsIgnoreCase(input) && !"N".equalsIgnoreCase(input)) {
             exception.throwException("Y/N으로만 입력가능합니다");
         }
-        if (Status.Y == Status.checkStatusInput(input)) {
-            wantBuyProduct.addQuantity(notBringBonus);
-        }
+        return input;
     }
 
 
