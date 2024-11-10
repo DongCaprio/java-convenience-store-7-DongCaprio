@@ -1,5 +1,7 @@
 package store;
 
+import view.OutputView;
+
 public class Product {
 
     private String name;
@@ -42,12 +44,12 @@ public class Product {
         if (promotion == null) {
             promotion = "";
         }
-        System.out.println(product + count + " " + promotion);
+        OutputView.printMessage(product + count + " " + promotion);
     }
 
     public void nextZeroPrint() {
         String product = "- " + name + " " + String.format("%,d", price) + "원 " + "재고 없음";
-        System.out.println(product);
+        OutputView.printMessage(product);
     }
 
     public void addQuantity(int quantity) {

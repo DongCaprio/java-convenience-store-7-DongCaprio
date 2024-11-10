@@ -1,5 +1,8 @@
 package store;
 
+import static view.InputView.handleRetryOnError;
+import static view.OutputView.printMessage;
+
 import dto.Status;
 import exception.Exception;
 import java.util.ArrayList;
@@ -16,7 +19,6 @@ public class Buyer {
     private LinkedHashMap<String, List<Product>> products;
     private Map<String, Promotion> promotions;
 
-    private Exception exception = new Exception();
     private List<Product> buyProducts;
 
     HashMap<String, Integer> receiptMap;
@@ -63,37 +65,72 @@ public class Buyer {
 
     public void buyProducts() {
         receiptMap = new HashMap<>();
-        List<Product> wantBuyProducts = inputView.readItem();
-        checkPromotionApply(wantBuyProducts);
-        checkCanBuyQuantity(wantBuyProducts);
+        List<Product> wantBuyProducts = inputBuyProduct();
         checkNotPromotionApply(wantBuyProducts);
         applyMemberShip();
         printReceipt(wantBuyProducts);
         realBuyProducts(wantBuyProducts);
     }
 
+    public List<Product> inputBuyProduct() {
+        return handleRetryOnError(() -> {
+            List<Product> wantBuyProducts = inputView.readItem();
+            productNameCheck(wantBuyProducts);
+            checkPromotionApply(wantBuyProducts);
+            checkCanBuyQuantity(wantBuyProducts);
+            return wantBuyProducts;
+        });
+    }
+
+    public void productNameCheck(List<Product> wantBuyProducts) {
+        if (wantBuyProducts.isEmpty()) {
+            Exception.throwException("잘못된 입력입니다. 다시 입력해 주세요.");
+        }
+        for (Product wantBuyProduct : wantBuyProducts) {
+            if (products.get(wantBuyProduct.getName()) == null) {
+                Exception.throwException("존재하지 않는 상품입니다. 다시 입력해 주세요.");
+            }
+        }
+    }
+
     public void realBuyProducts(List<Product> wantBuyProducts) {
         for (Product wantBuyProduct : wantBuyProducts) {
             int quantity = wantBuyProduct.getQuantity();
-            if (products.get(wantBuyProduct.getName()).getFirst().getQuantity() >= quantity) {
-                products.get(wantBuyProduct.getName()).getFirst().subtractQuantity(quantity);
+            Product firstProduct = products.get(wantBuyProduct.getName()).getFirst();
+            if (withinQuantity(firstProduct, quantity)) {
                 continue;
             }
-            int restQuantity = quantity - products.get(wantBuyProduct.getName()).getFirst().getQuantity();
-            products.get(wantBuyProduct.getName()).getFirst()
-                    .subtractQuantity(products.get(wantBuyProduct.getName()).getFirst().getQuantity());
+            int restQuantity = quantity - firstProduct.getQuantity();
+            firstProduct.subtractQuantity(firstProduct.getQuantity());
             products.get(wantBuyProduct.getName()).get(1).subtractQuantity(restQuantity);
         }
     }
 
-    public void wantContinue() {
-        outputView.printMessage("\n감사합니다. 구매하고 싶은 다른 상품이 있나요? (Y/N)");
-        Status status = inputView.wantContinue();
-        if (status == Status.Y) {
-            System.out.println();
-            outputView.printProducts(products);
-            buyProducts();
+    public boolean withinQuantity(Product firstProduct, int quantity) {
+        boolean exceed = false;
+        if (firstProduct.getQuantity() >= quantity) {
+            firstProduct.subtractQuantity(quantity);
+            return true;
         }
+        return exceed;
+    }
+
+    public void wantContinue() {
+        while (true) {
+            printMessage("\n감사합니다. 구매하고 싶은 다른 상품이 있나요? (Y/N)");
+            Status status = inputView.wantContinue();
+            if (status == Status.Y) {
+                convenienceContinue();
+            }
+            break;
+        }
+    }
+
+    public void convenienceContinue() {
+        printMessage(null);
+        outputView.printProducts(products);
+        buyProducts();
+        wantContinue();
     }
 
     public void printReceipt(List<Product> wantBuyProducts) {
@@ -104,14 +141,11 @@ public class Buyer {
 
 
     public void printFinalReceipt(List<Product> wantBuyProducts, int totalBuyCount) {
-        outputView.printMessage("====================================");
+        printMessage("====================================");
         int totalMoney = totalMoney();
         int promotionDiscount = promotionDiscount();
         int memberShipDiscount = memberShipDiscount();
-        System.out.printf("총구매액\t\t\t%s\t%,d\n", totalBuyCount, totalMoney);
-        System.out.printf("행사할인\t\t\t\t-%,d\n", promotionDiscount);
-        System.out.printf("멤버십할인\t\t\t\t-%,d\n", memberShipDiscount);
-        System.out.printf("내실돈\t\t\t\t%,d\n", (totalMoney - promotionDiscount - memberShipDiscount));
+        outputView.printFinalReceipt(totalBuyCount, totalMoney, promotionDiscount, memberShipDiscount);
     }
 
 
@@ -158,17 +192,21 @@ public class Buyer {
     }
 
     public void printPresentReceipt(List<Product> wantBuyProducts) {
-        System.out.println("=============증\t정===============");
+        printMessage("=============증\t정===============");
         for (Product wantBuyProduct : wantBuyProducts) {
             if (products.get(wantBuyProduct.getName()).size() == 1) {
                 continue;
             }
-            int promotionCount = calculatePromotionCount(wantBuyProduct);
-            if (promotionCount > 0) {
-                System.out.printf("%-10s %5d\n", wantBuyProduct.getName(), promotionCount);
-                receiptMap.put("P_" + wantBuyProduct.getName(),
-                        promotionCount * products.get(wantBuyProduct.getName()).getFirst().getPrice());
-            }
+            printProvenPresent(wantBuyProduct);
+        }
+    }
+
+    public void printProvenPresent(Product wantBuyProduct) {
+        int promotionCount = calculatePromotionCount(wantBuyProduct);
+        if (promotionCount > 0) {
+            outputView.printPresentReceipt(wantBuyProduct, promotionCount);
+            receiptMap.put("P_" + wantBuyProduct.getName(),
+                    promotionCount * products.get(wantBuyProduct.getName()).getFirst().getPrice());
         }
     }
 
@@ -192,7 +230,7 @@ public class Buyer {
 
 
     public void applyMemberShip() {
-        outputView.printMemberShip();
+        OutputView.printMessage("\n멤버십 할인을 받으시겠습니까? (Y/N)");
         this.memberShip = inputView.memberShipApply();
     }
 
@@ -221,7 +259,8 @@ public class Buyer {
 
     public void questionPromotionApply(Product wantBuyProduct, int notPromotionCount) {
         if (notPromotionCount > 0) {
-            outputView.printPromotionApply(wantBuyProduct, notPromotionCount);
+            printMessage("현재 " + wantBuyProduct.getName() + " " + notPromotionCount
+                    + "개는 프로모션 할인이 적용되지 않습니다. 그래도 구매하시겠습니까? (Y/N)");
             inputView.promotionApply(wantBuyProduct, notPromotionCount);
         }
     }
@@ -237,8 +276,6 @@ public class Buyer {
         int promotionSetSize = getPromotionSetSize(wantBuyProduct.getName());
         return Math.min(products.get(wantBuyProduct.getName()).getFirst().getQuantity() / promotionSetSize,
                 wantBuyProduct.getQuantity() / promotionSetSize);
-        //return products.get(wantBuyProduct.getName()).getFirst().getQuantity() / promotionSetSize;
-        //return wantBuyProduct.getQuantity() / promotionSetSize;
     }
 
     public int canBuyPromotionProductCount(String productName) {
