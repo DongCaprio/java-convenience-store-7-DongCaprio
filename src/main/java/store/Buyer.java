@@ -194,7 +194,8 @@ public class Buyer {
     public void printPresentReceipt(List<Product> wantBuyProducts) {
         printMessage("=============증\t정===============");
         for (Product wantBuyProduct : wantBuyProducts) {
-            if (products.get(wantBuyProduct.getName()).size() == 1) {
+            Promotion promotion = promotions.get(products.get(wantBuyProduct.getName()).getFirst().getPromotion());
+            if (products.get(wantBuyProduct.getName()).size() == 1 || !promotion.checkPromotionDate(wantBuyProduct)) {
                 continue;
             }
             printProvenPresent(wantBuyProduct);
