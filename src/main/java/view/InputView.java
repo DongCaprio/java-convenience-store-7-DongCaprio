@@ -35,21 +35,15 @@ public class InputView {
         System.out.println("\n구매하실 상품명과 수량을 입력해 주세요. (예: [사이다-2],[감자칩-1])");
         String input = Console.readLine().trim();
         String[] items = input.split(",");
-        List<Product> buyProducts = new ArrayList<>();
-        for (String item : items) {
-            if (item.indexOf("]") != item.length() - 1 || item.lastIndexOf("[") != 0) {
-                exception.throwException("예: [사이다-2],[감자칩-1] 처럼 입력해주세요");
-            }
-            String cleanInput = item.replace("[", "").replace("]", "");
-            String[] nameAndQuantity = cleanInput.split("-");
-            String name = nameAndQuantity[0];
-            int quantity = Integer.parseInt(nameAndQuantity[1]);
-            buyProducts.add(new Product(name, quantity));
-        }
-        return buyProducts;
         return items;
     }
 
+    public void addBuyProduct(String item, List<Product> buyProducts) {
+        String cleanInput = item.replace("[", "").replace("]", "");
+        String[] nameAndQuantity = cleanInput.split("-");
+        String name = nameAndQuantity[0];
+        int quantity = Integer.parseInt(nameAndQuantity[1]);
+        buyProducts.add(new Product(name, quantity));
     }
 
     public <T> List<T> loadItems(String fileName, Function<String, T> mapper) {
