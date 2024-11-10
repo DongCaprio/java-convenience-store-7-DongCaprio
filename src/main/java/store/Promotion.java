@@ -24,17 +24,7 @@ public class Promotion {
         LocalDate currentDate = now.toLocalDate();
         return !currentDate.isBefore(startDate) && !currentDate.isAfter(endDate);
     }
-
-    public boolean checkPromotionName(Product product) {
-        return this.name.equals(product.getName());
-    }
-
-    public boolean checkPromotion(Product wantBuyProduct) {
-        boolean promotionApplicability = false;
-        promotionApplicability = checkPromotionDate(wantBuyProduct) && checkPromotionName(wantBuyProduct);
-        return promotionApplicability;
-    }
-
+    
     public String getName() {
         return name;
     }

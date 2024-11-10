@@ -27,13 +27,6 @@ public class Product {
         this.promotion = promotion;
     }
 
-    public boolean isPromotionProduct() {
-        if (this.promotion != null) {
-            return true;
-        }
-        return false;
-    }
-
     public void print() {
         String product = "- " + name + " " + String.format("%,d", price) + "원 ";
         String count = quantity + "개";
@@ -45,11 +38,6 @@ public class Product {
             promotion = "";
         }
         OutputView.printMessage(product + count + " " + promotion);
-    }
-
-    public void nextZeroPrint() {
-        String product = "- " + name + " " + String.format("%,d", price) + "원 " + "재고 없음";
-        OutputView.printMessage(product);
     }
 
     public void addQuantity(int quantity) {
