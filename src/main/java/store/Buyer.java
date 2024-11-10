@@ -217,11 +217,11 @@ public class Buyer {
 
     public int printFirstReceipt(List<Product> wantBuyProducts) {
         outputView.printFirstReceipt();
-        int totalBuyCount = printPurchaseListReceipt(wantBuyProducts);
+        int totalBuyCount = calculateTotalBuyCount(wantBuyProducts);
         return totalBuyCount;
     }
 
-    public int printPurchaseListReceipt(List<Product> wantBuyProducts) {
+    public int calculateTotalBuyCount(List<Product> wantBuyProducts) {
         int totalBuyCount = 0;
         for (Product wantBuyProduct : wantBuyProducts) {
             Product findProduct = products.get(wantBuyProduct.getName()).getFirst();
