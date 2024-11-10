@@ -64,12 +64,16 @@ public class Buyer {
 
 
     public void buyProducts() {
-        receiptMap = new HashMap<>();
+        initializationReceiptMap();
         List<Product> wantBuyProducts = inputBuyProduct();
         checkNotPromotionApply(wantBuyProducts);
         applyMemberShip();
         printReceipt(wantBuyProducts);
         realBuyProducts(wantBuyProducts);
+    }
+
+    public void initializationReceiptMap() {
+        receiptMap = new HashMap<>();
     }
 
     public List<Product> inputBuyProduct() {
