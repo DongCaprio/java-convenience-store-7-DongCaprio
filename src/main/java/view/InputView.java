@@ -20,6 +20,14 @@ public class InputView {
     private Exception exception = new Exception();
 
     public List<Product> readItem() {
+        return handleRetryOnError(() -> {
+            String[] items = preWorkBuyProduct();
+            List<Product> buyProducts = new ArrayList<>();
+            for (String item : items) {
+                ProductValidator.isValidProductFormat(item);
+                addBuyProduct(item, buyProducts);
+            }
+            return buyProducts;
         System.out.println("\n구매하실 상품명과 수량을 입력해 주세요. (예: [사이다-2],[감자칩-1])");
         String input = Console.readLine();
         String[] items = input.split(",");
