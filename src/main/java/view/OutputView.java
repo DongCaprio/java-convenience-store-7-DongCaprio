@@ -16,16 +16,16 @@ public class OutputView {
     }
 
     public void printBringPromotion(String productName, int notBringBonus) {
-        System.out.printf("\n현재 %s은(는) %d개를 무료로 더 받을 수 있습니다. 추가하시겠습니까? Y/N%n", productName, notBringBonus);
+        System.out.printf("%n현재 %s은(는) %d개를 무료로 더 받을 수 있습니다. 추가하시겠습니까? Y/N%n", productName, notBringBonus);
     }
 
     public void printPromotionApply(Product wantBuyProduct, int notPromotionCount) {
-        System.out.println("\n현재 " + wantBuyProduct.getName() + " " + notPromotionCount
+        System.out.println("%n현재 " + wantBuyProduct.getName() + " " + notPromotionCount
                 + "개는 프로모션 할인이 적용되지 않습니다. 그래도 구매하시겠습니까? (Y/N)");
     }
 
     public void printMemberShip() {
-        System.out.println("\n멤버십 할인을 받으시겠습니까? (Y/N)");
+        System.out.println("멤버십 할인을 받으시겠습니까? (Y/N)");
     }
 
     public static void printMessage(String message) {
