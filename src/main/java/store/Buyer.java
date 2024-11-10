@@ -19,7 +19,7 @@ public class Buyer {
     private Exception exception = new Exception();
     private List<Product> buyProducts;
 
-    HashMap<String, Integer> receiptMap = new HashMap<>();
+    HashMap<String, Integer> receiptMap;
 
     private Status memberShip;
 
@@ -62,19 +62,37 @@ public class Buyer {
 
 
     public void buyProducts() {
+        receiptMap = new HashMap<>();
         List<Product> wantBuyProducts = inputView.readItem();
         checkPromotionApply(wantBuyProducts);
         checkCanBuyQuantity(wantBuyProducts);
         checkNotPromotionApply(wantBuyProducts);
         applyMemberShip();
-        printReceipt(wantBuyProducts);//이어서하기
+        printReceipt(wantBuyProducts);
+        realBuyProducts(wantBuyProducts);
+    }
+
+    public void realBuyProducts(List<Product> wantBuyProducts) {
+        for (Product wantBuyProduct : wantBuyProducts) {
+            int quantity = wantBuyProduct.getQuantity();
+            if (products.get(wantBuyProduct.getName()).getFirst().getQuantity() >= quantity) {
+                products.get(wantBuyProduct.getName()).getFirst().subtractQuantity(quantity);
+                continue;
+            }
+            int restQuantity = quantity - products.get(wantBuyProduct.getName()).getFirst().getQuantity();
+            products.get(wantBuyProduct.getName()).getFirst()
+                    .subtractQuantity(products.get(wantBuyProduct.getName()).getFirst().getQuantity());
+            products.get(wantBuyProduct.getName()).get(1).subtractQuantity(restQuantity);
+        }
     }
 
     public void wantContinue() {
-        outputView.printMessage("감사합니다. 구매하고 싶은 다른 상품이 있나요? (Y/N)");
+        outputView.printMessage("\n감사합니다. 구매하고 싶은 다른 상품이 있나요? (Y/N)");
         Status status = inputView.wantContinue();
         if (status == Status.Y) {
-            //계속하기
+            System.out.println();
+            outputView.printProducts(products);
+            buyProducts();
         }
     }
 
@@ -217,7 +235,10 @@ public class Buyer {
 
     public int calculatePromotionCount(Product wantBuyProduct) {
         int promotionSetSize = getPromotionSetSize(wantBuyProduct.getName());
-        return wantBuyProduct.getQuantity() / promotionSetSize;
+        return Math.min(products.get(wantBuyProduct.getName()).getFirst().getQuantity() / promotionSetSize,
+                wantBuyProduct.getQuantity() / promotionSetSize);
+        //return products.get(wantBuyProduct.getName()).getFirst().getQuantity() / promotionSetSize;
+        //return wantBuyProduct.getQuantity() / promotionSetSize;
     }
 
     public int canBuyPromotionProductCount(String productName) {
