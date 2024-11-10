@@ -28,4 +28,14 @@ public class OutputView {
         System.out.println("멤버십 할인을 받으시겠습니까? (Y/N)");
     }
 
+    public void printMessage(String message) {
+        System.out.println(message);
+    }
+
+    public int printPurchaseReceipt(Product findProduct, Product wantBuyProduct) {
+        System.out.printf("%-10s %5d \t   %,d\n", findProduct.getName(), wantBuyProduct.getQuantity(),
+                (wantBuyProduct.getQuantity() * findProduct.getPrice()));
+        return wantBuyProduct.getQuantity() * findProduct.getPrice();
+    }
+
 }

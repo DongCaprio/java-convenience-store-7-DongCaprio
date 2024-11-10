@@ -102,5 +102,10 @@ public class InputView {
         return input;
     }
 
+    public Status wantContinue() {
+        String input = checkInputYorN();
+        return Status.checkStatusInput(input);
+    }
+
 
 }

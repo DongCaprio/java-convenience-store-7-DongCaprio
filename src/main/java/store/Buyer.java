@@ -1,5 +1,7 @@
 package store;
 
+import dto.Status;
+import exception.Exception;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -16,6 +18,8 @@ public class Buyer {
 
     private Exception exception = new Exception();
     private List<Product> buyProducts;
+
+    HashMap<String, Integer> receiptMap = new HashMap<>();
 
     private Status memberShip;
 
@@ -62,11 +66,112 @@ public class Buyer {
         checkPromotionApply(wantBuyProducts);
         checkCanBuyQuantity(wantBuyProducts);
         checkNotPromotionApply(wantBuyProducts);
+        applyMemberShip();
+        printReceipt(wantBuyProducts);//이어서하기
     }
 
-    public void printReceipt() {
-
+    public void wantContinue() {
+        outputView.printMessage("감사합니다. 구매하고 싶은 다른 상품이 있나요? (Y/N)");
+        Status status = inputView.wantContinue();
+        if (status == Status.Y) {
+            //계속하기
+        }
     }
+
+    public void printReceipt(List<Product> wantBuyProducts) {
+        int totalBuyCount = printFirstReceipt(wantBuyProducts);
+        printPresentReceipt(wantBuyProducts);
+        printFinalReceipt(wantBuyProducts, totalBuyCount);
+    }
+
+
+    public void printFinalReceipt(List<Product> wantBuyProducts, int totalBuyCount) {
+        outputView.printMessage("====================================");
+        int totalMoney = totalMoney();
+        int promotionDiscount = promotionDiscount();
+        int memberShipDiscount = memberShipDiscount();
+        System.out.printf("총구매액\t\t\t%s\t%,d\n", totalBuyCount, totalMoney);
+        System.out.printf("행사할인\t\t\t\t-%,d\n", promotionDiscount);
+        System.out.printf("멤버십할인\t\t\t\t-%,d\n", memberShipDiscount);
+        System.out.printf("내실돈\t\t\t\t%,d\n", (totalMoney - promotionDiscount - memberShipDiscount));
+    }
+
+
+    public int memberShipDiscount() {
+        int memberShipMoney = 0;
+        if (memberShip != Status.Y) {
+            return memberShipMoney;
+        }
+        for (String key : receiptMap.keySet()) {
+            if (!key.startsWith("P_")) {
+                memberShipMoney += (int) (receiptMap.get(key) * 0.3);
+            }
+        }
+        return memberShipMoney;
+    }
+
+    public int promotionDiscount() {
+        int promotionDiscount = 0;
+        ArrayList<String> removes = new ArrayList<>();
+        for (String key : receiptMap.keySet()) {
+            if (key.startsWith("P_")) {
+                promotionDiscount += receiptMap.get(key);
+                removes.add(key.substring(key.indexOf("P_") + 2));
+            }
+        }
+        removeReceiptMap(removes);
+        return promotionDiscount;
+    }
+
+    public void removeReceiptMap(List<String> removes) {
+        for (String remove : removes) {
+            receiptMap.remove(remove);
+        }
+    }
+
+    public int totalMoney() {
+        int totalMoney = 0;
+        for (String key : receiptMap.keySet()) {
+            if (!key.startsWith("P_")) {
+                totalMoney += receiptMap.get(key);
+            }
+        }
+        return totalMoney;
+    }
+
+    public void printPresentReceipt(List<Product> wantBuyProducts) {
+        System.out.println("=============증\t정===============");
+        for (Product wantBuyProduct : wantBuyProducts) {
+            if (products.get(wantBuyProduct.getName()).size() == 1) {
+                continue;
+            }
+            int promotionCount = calculatePromotionCount(wantBuyProduct);
+            if (promotionCount > 0) {
+                System.out.printf("%-10s %5d\n", wantBuyProduct.getName(), promotionCount);
+                receiptMap.put("P_" + wantBuyProduct.getName(),
+                        promotionCount * products.get(wantBuyProduct.getName()).getFirst().getPrice());
+            }
+        }
+    }
+
+    public int printFirstReceipt(List<Product> wantBuyProducts) {
+        System.out.println("==============W 편의점================");
+        System.out.printf("%-10s\t%-5s\t%s\n", "상품명", "수량", "금액");
+        int totalBuyCount = printPurchaseListReceipt(wantBuyProducts);
+        return totalBuyCount;
+    }
+
+    public int printPurchaseListReceipt(List<Product> wantBuyProducts) {
+        int totalBuyCount = 0;
+        for (Product wantBuyProduct : wantBuyProducts) {
+            Product findProduct = products.get(wantBuyProduct.getName()).getFirst();
+            int totalPrice = outputView.printPurchaseReceipt(findProduct, wantBuyProduct);
+            receiptMap.put(findProduct.getName(), totalPrice);
+            totalBuyCount += wantBuyProduct.getQuantity();
+        }
+        return totalBuyCount;
+    }
+
 
     public void applyMemberShip() {
         outputView.printMemberShip();
@@ -110,6 +215,11 @@ public class Buyer {
         return wantBuyProduct.getQuantity() - promotionCount;
     }
 
+    public int calculatePromotionCount(Product wantBuyProduct) {
+        int promotionSetSize = getPromotionSetSize(wantBuyProduct.getName());
+        return wantBuyProduct.getQuantity() / promotionSetSize;
+    }
+
     public int canBuyPromotionProductCount(String productName) {
         return products.get(productName).getFirst().getQuantity();
     }
@@ -130,7 +240,6 @@ public class Buyer {
                 int notBringBonus = calculateBonus(promotion.getBuy(), promotion.getGet(),
                         wantBuyProduct.getQuantity());
                 bringBonus(wantBuyProduct, notBringBonus);
-
             }
         }
     }
