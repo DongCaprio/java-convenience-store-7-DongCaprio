@@ -326,4 +326,8 @@ public class Buyer {
         }
     }
 
+    public LinkedHashMap<String, List<Product>> getProducts() {
+        LinkedHashMap<String, List<Product>> copiedProdcuts = new LinkedHashMap<>(this.products);
+        return copiedProdcuts;
+    }
 }
