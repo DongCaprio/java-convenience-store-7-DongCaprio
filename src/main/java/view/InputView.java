@@ -10,14 +10,14 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import store.Application;
 import store.Product;
 import store.Promotion;
+import util.ProductValidator;
 
 public class InputView {
-
-    private Exception exception = new Exception();
 
     public List<Product> readItem() {
         return handleRetryOnError(() -> {
@@ -28,8 +28,12 @@ public class InputView {
                 addBuyProduct(item, buyProducts);
             }
             return buyProducts;
+        });
+    }
+
+    public String[] preWorkBuyProduct() {
         System.out.println("\n구매하실 상품명과 수량을 입력해 주세요. (예: [사이다-2],[감자칩-1])");
-        String input = Console.readLine();
+        String input = Console.readLine().trim();
         String[] items = input.split(",");
         List<Product> buyProducts = new ArrayList<>();
         for (String item : items) {
@@ -43,6 +47,9 @@ public class InputView {
             buyProducts.add(new Product(name, quantity));
         }
         return buyProducts;
+        return items;
+    }
+
     }
 
     public <T> List<T> loadItems(String fileName, Function<String, T> mapper) {
@@ -60,14 +67,13 @@ public class InputView {
     public List<Product> loadProducts(String fileName) {
         return loadItems(fileName, line -> {
             String[] productInfo = line.split(",");
-            String name = productInfo[0];
             int price = Integer.parseInt(productInfo[1]);
             int quantity = Integer.parseInt(productInfo[2]);
             String promotion = productInfo[3];
             if ("null".equals(promotion)) {
                 promotion = null;
             }
-            return new Product(name, price, quantity, promotion);
+            return new Product(productInfo[0], price, quantity, promotion);
         });
     }
 

@@ -212,8 +212,7 @@ public class Buyer {
     }
 
     public int printFirstReceipt(List<Product> wantBuyProducts) {
-        System.out.println("==============W 편의점================");
-        System.out.printf("%-10s\t%-5s\t%s\n", "상품명", "수량", "금액");
+        outputView.printFirstReceipt();
         int totalBuyCount = printPurchaseListReceipt(wantBuyProducts);
         return totalBuyCount;
     }
