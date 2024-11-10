@@ -14,6 +14,8 @@ import view.InputView;
 import view.OutputView;
 
 public class Buyer {
+
+    private static final String PROMOTIONAL_SEPARATOR = "P_";
     private InputView inputView;
     private OutputView outputView;
     private LinkedHashMap<String, List<Product>> products;
@@ -159,7 +161,7 @@ public class Buyer {
             return memberShipMoney;
         }
         for (String key : receiptMap.keySet()) {
-            if (!key.startsWith("P_")) {
+            if (!key.startsWith(PROMOTIONAL_SEPARATOR)) {
                 memberShipMoney += (int) (receiptMap.get(key) * 0.3);
             }
         }
@@ -170,9 +172,9 @@ public class Buyer {
         int promotionDiscount = 0;
         ArrayList<String> removes = new ArrayList<>();
         for (String key : receiptMap.keySet()) {
-            if (key.startsWith("P_")) {
+            if (key.startsWith(PROMOTIONAL_SEPARATOR)) {
                 promotionDiscount += receiptMap.get(key);
-                removes.add(key.substring(key.indexOf("P_") + 2));
+                removes.add(key.substring(key.indexOf(PROMOTIONAL_SEPARATOR) + PROMOTIONAL_SEPARATOR.length()));
             }
         }
         removeReceiptMap(removes);
@@ -188,7 +190,7 @@ public class Buyer {
     public int totalMoney() {
         int totalMoney = 0;
         for (String key : receiptMap.keySet()) {
-            if (!key.startsWith("P_")) {
+            if (!key.startsWith(PROMOTIONAL_SEPARATOR)) {
                 totalMoney += receiptMap.get(key);
             }
         }
@@ -210,7 +212,7 @@ public class Buyer {
         int promotionCount = calculatePromotionCount(wantBuyProduct);
         if (promotionCount > 0) {
             outputView.printPresentReceipt(wantBuyProduct, promotionCount);
-            receiptMap.put("P_" + wantBuyProduct.getName(),
+            receiptMap.put(PROMOTIONAL_SEPARATOR + wantBuyProduct.getName(),
                     promotionCount * products.get(wantBuyProduct.getName()).getFirst().getPrice());
         }
     }
