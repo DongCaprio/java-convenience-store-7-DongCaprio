@@ -108,6 +108,7 @@ public class InputView {
             exception.throwException("Y/N으로만 입력가능합니다");
         }
         return input;
+                Exception.throwException("잘못된 입력입니다. 다시 입력해 주세요.");
     }
 
     public Status wantContinue() {
