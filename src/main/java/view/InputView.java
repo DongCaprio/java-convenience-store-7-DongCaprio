@@ -103,17 +103,27 @@ public class InputView {
     }
 
     public String checkInputYorN() {
-        String input = Console.readLine();
-        if (!"Y".equalsIgnoreCase(input) && !"N".equalsIgnoreCase(input)) {
-            exception.throwException("Y/N으로만 입력가능합니다");
-        }
-        return input;
+        return handleRetryOnError(() -> {
+            String input = Console.readLine().trim();
+            if (!"Y".equalsIgnoreCase(input) && !"N".equalsIgnoreCase(input)) {
                 Exception.throwException("잘못된 입력입니다. 다시 입력해 주세요.");
+            }
+            return input;
+        });
     }
 
     public Status wantContinue() {
         String input = checkInputYorN();
         return Status.checkStatusInput(input);
+    }
+
+    public static <T> T handleRetryOnError(Supplier<T> method) {
+        try {
+            return method.get();
+        } catch (IllegalArgumentException e) {
+            OutputView.printMessage(e.getMessage());
+            return handleRetryOnError(method);
+        }
     }
 
 
