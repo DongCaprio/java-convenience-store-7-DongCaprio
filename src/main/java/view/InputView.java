@@ -34,15 +34,19 @@ public class InputView {
     public String[] preWorkBuyProduct() {
         System.out.println("\n구매하실 상품명과 수량을 입력해 주세요. (예: [사이다-2],[감자칩-1])");
         String input = Console.readLine().trim();
-        String[] items = input.split(",");
-        return items;
+        return input.split(",");
     }
 
     public void addBuyProduct(String item, List<Product> buyProducts) {
         String cleanInput = item.replace("[", "").replace("]", "");
         String[] nameAndQuantity = cleanInput.split("-");
         String name = nameAndQuantity[0];
-        int quantity = Integer.parseInt(nameAndQuantity[1]);
+        int quantity = 0;
+        try {
+            quantity = Integer.parseInt(nameAndQuantity[1]);
+        } catch (java.lang.Exception e) {
+            Exception.throwException("재고 수량을 초과하여 구매할 수 없습니다. 다시 입력해 주세요.");
+        }
         buyProducts.add(new Product(name, quantity));
     }
 
