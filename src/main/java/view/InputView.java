@@ -1,5 +1,8 @@
 package view;
 
+import static exception.Exception.EXCEED_QUANTITY;
+import static exception.Exception.WRONG_INPUT;
+
 import camp.nextstep.edu.missionutils.Console;
 import dto.Status;
 import exception.Exception;
@@ -19,6 +22,8 @@ import util.ProductValidator;
 
 public class InputView {
 
+    private static final String WANT_BUY_PRODUCT = "\n구매하실 상품명과 수량을 입력해 주세요. (예: [사이다-2],[감자칩-1])";
+
     public List<Product> readItem() {
         return handleRetryOnError(() -> {
             String[] items = preWorkBuyProduct();
@@ -32,7 +37,7 @@ public class InputView {
     }
 
     public String[] preWorkBuyProduct() {
-        System.out.println("\n구매하실 상품명과 수량을 입력해 주세요. (예: [사이다-2],[감자칩-1])");
+        System.out.println(WANT_BUY_PRODUCT);
         String input = Console.readLine().trim();
         return input.split(",");
     }
@@ -45,7 +50,7 @@ public class InputView {
         try {
             quantity = Integer.parseInt(nameAndQuantity[1]);
         } catch (java.lang.Exception e) {
-            Exception.throwException("재고 수량을 초과하여 구매할 수 없습니다. 다시 입력해 주세요.");
+            Exception.throwException(EXCEED_QUANTITY);
         }
         buyProducts.add(new Product(name, quantity));
     }
@@ -110,7 +115,7 @@ public class InputView {
         return handleRetryOnError(() -> {
             String input = Console.readLine().trim();
             if (!"Y".equalsIgnoreCase(input) && !"N".equalsIgnoreCase(input)) {
-                Exception.throwException("잘못된 입력입니다. 다시 입력해 주세요.");
+                Exception.throwException(WRONG_INPUT);
             }
             return input;
         });

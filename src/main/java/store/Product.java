@@ -4,7 +4,11 @@ import view.OutputView;
 
 public class Product {
 
-    private String name;
+    private static final String NO_STACK = "재고 없음";
+    private static final String NUMBER = "개";
+    private static final String WON = "원 ";
+
+    private final String name;
     private int price;
     private int quantity;
     private String promotion;
@@ -28,10 +32,10 @@ public class Product {
     }
 
     public void print() {
-        String product = "- " + name + " " + String.format("%,d", price) + "원 ";
-        String count = quantity + "개";
+        String product = "- " + name + " " + String.format("%,d", price) + WON;
+        String count = quantity + NUMBER;
         if (quantity == 0) {
-            count = "재고 없음";
+            count = NO_STACK;
         }
         String promotion = this.promotion;
         if (promotion == null) {

@@ -1,6 +1,12 @@
 package store;
 
+import static exception.Exception.EXCEED_QUANTITY;
+import static exception.Exception.NON_EXIST_PRODUCT;
+import static exception.Exception.WRONG_INPUT;
 import static view.InputView.handleRetryOnError;
+import static view.OutputView.MEMBERSHIP_BUY;
+import static view.OutputView.NOW;
+import static view.OutputView.NO_PROMOTION_BUY;
 import static view.OutputView.printMessage;
 
 import dto.Status;
@@ -16,22 +22,24 @@ import view.OutputView;
 public class Buyer {
 
     private static final String PROMOTIONAL_SEPARATOR = "P_";
-    private InputView inputView;
-    private OutputView outputView;
-    private LinkedHashMap<String, List<Product>> products;
-    private Map<String, Promotion> promotions;
-
-    private List<Product> buyProducts;
-
+    private static final String PRODUCTS_FILE_NAME = "products.md";
+    private static final String PROMOTION_FILE_NAME = "promotions.md";
+    private static final String THANK_YOU_MORE_BUY = "\n감사합니다. 구매하고 싶은 다른 상품이 있나요? (Y/N)";
+    private static final String BLANK_SEPARATOR = "====================================";
+    private static final String PROMOTION_SEPARATOR = "=============증\t정===============";
+    private static final int MEMBERSHIP_MAX_DISCOUNT = 8000;
+    private final InputView inputView;
+    private final OutputView outputView;
+    private final LinkedHashMap<String, List<Product>> products;
+    private final Map<String, Promotion> promotions;
     HashMap<String, Integer> receiptMap;
-
     private Status memberShip;
 
     public Buyer() {
         this.inputView = new InputView();
         this.outputView = new OutputView();
-        this.products = makeProducts(inputView.loadProducts("products.md"));
-        this.promotions = makePromotions(inputView.loadPromotions("promotions.md"));
+        this.products = makeProducts(inputView.loadProducts(PRODUCTS_FILE_NAME));
+        this.promotions = makePromotions(inputView.loadPromotions(PROMOTION_FILE_NAME));
         outputView.printProducts(products);
     }
 
@@ -90,11 +98,11 @@ public class Buyer {
 
     public void productNameCheck(List<Product> wantBuyProducts) {
         if (wantBuyProducts.isEmpty()) {
-            Exception.throwException("잘못된 입력입니다. 다시 입력해 주세요.");
+            Exception.throwException(WRONG_INPUT);
         }
         for (Product wantBuyProduct : wantBuyProducts) {
             if (products.get(wantBuyProduct.getName()) == null) {
-                Exception.throwException("존재하지 않는 상품입니다. 다시 입력해 주세요.");
+                Exception.throwException(NON_EXIST_PRODUCT);
             }
         }
     }
@@ -123,7 +131,7 @@ public class Buyer {
 
     public void wantContinue() {
         while (true) {
-            printMessage("\n감사합니다. 구매하고 싶은 다른 상품이 있나요? (Y/N)");
+            printMessage(THANK_YOU_MORE_BUY);
             Status status = inputView.wantContinue();
             if (status == Status.Y) {
                 convenienceContinue();
@@ -142,12 +150,12 @@ public class Buyer {
     public void printReceipt(List<Product> wantBuyProducts) {
         int totalBuyCount = printFirstReceipt(wantBuyProducts);
         printPresentReceipt(wantBuyProducts);
-        printFinalReceipt(wantBuyProducts, totalBuyCount);
+        printFinalReceipt(totalBuyCount);
     }
 
 
-    public void printFinalReceipt(List<Product> wantBuyProducts, int totalBuyCount) {
-        printMessage("====================================");
+    public void printFinalReceipt(int totalBuyCount) {
+        printMessage(BLANK_SEPARATOR);
         int totalMoney = totalMoney();
         int promotionDiscount = promotionDiscount();
         int memberShipDiscount = memberShipDiscount();
@@ -198,10 +206,10 @@ public class Buyer {
     }
 
     public void printPresentReceipt(List<Product> wantBuyProducts) {
-        printMessage("=============증\t정===============");
+        printMessage(PROMOTION_SEPARATOR);
         for (Product wantBuyProduct : wantBuyProducts) {
             Promotion promotion = promotions.get(products.get(wantBuyProduct.getName()).getFirst().getPromotion());
-            if (products.get(wantBuyProduct.getName()).size() == 1 || !promotion.checkPromotionDate(wantBuyProduct)) {
+            if (products.get(wantBuyProduct.getName()).size() == 1 || !promotion.checkPromotionDate()) {
                 continue;
             }
             printProvenPresent(wantBuyProduct);
@@ -236,7 +244,7 @@ public class Buyer {
 
 
     public void applyMemberShip() {
-        OutputView.printMessage("\n멤버십 할인을 받으시겠습니까? (Y/N)");
+        OutputView.printMessage(MEMBERSHIP_BUY);
         this.memberShip = inputView.memberShipApply();
     }
 
@@ -248,7 +256,7 @@ public class Buyer {
                 count += p.getQuantity();
             }
             if (wantBuyProduct.getQuantity() > count) {
-                Exception.throwException("재고 수량을 초과하여 구매할 수 없습니다. 다시 입력해 주세요.");
+                Exception.throwException(EXCEED_QUANTITY);
             }
         }
     }
@@ -265,8 +273,7 @@ public class Buyer {
 
     public void questionPromotionApply(Product wantBuyProduct, int notPromotionCount) {
         if (notPromotionCount > 0) {
-            printMessage("현재 " + wantBuyProduct.getName() + " " + notPromotionCount
-                    + "개는 프로모션 할인이 적용되지 않습니다. 그래도 구매하시겠습니까? (Y/N)");
+            printMessage(NOW + wantBuyProduct.getName() + " " + notPromotionCount + NO_PROMOTION_BUY);
             inputView.promotionApply(wantBuyProduct, notPromotionCount);
         }
     }
@@ -300,7 +307,7 @@ public class Buyer {
     public void checkPromotionApply(List<Product> wantBuyProducts) {
         for (Product wantBuyProduct : wantBuyProducts) {
             Promotion promotion = promotions.get(products.get(wantBuyProduct.getName()).getFirst().getPromotion());
-            if (promotion != null && promotion.checkPromotionDate(wantBuyProduct)) {
+            if (promotion != null && promotion.checkPromotionDate()) {
                 int notBringBonus = calculateBonus(promotion.getBuy(), promotion.getGet(),
                         wantBuyProduct.getQuantity());
                 bringBonus(wantBuyProduct, notBringBonus);
