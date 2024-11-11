@@ -77,7 +77,6 @@ public class Buyer {
         return map;
     }
 
-
     public void buyProducts() {
         initializationReceiptMap();
         List<Product> wantBuyProducts = inputBuyProduct();
@@ -311,7 +310,7 @@ public class Buyer {
         return products.get(productName).getFirst().getQuantity();
     }
 
-    public int getPromotionSetSize(String productName) {
+    public int getPromotionSetSize(String productName) { // 2+1일 경우 한 set size는 3 / 1+1일때는 2
         String promotionName = products.get(productName).getFirst().getPromotion();
         int setSize = 0;
         Promotion promotion = promotions.get(promotionName);
