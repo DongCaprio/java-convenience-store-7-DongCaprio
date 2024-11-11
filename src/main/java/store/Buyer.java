@@ -165,7 +165,7 @@ public class Buyer {
                 memberShipMoney += (int) (receiptMap.get(key) * 0.3);
             }
         }
-        return memberShipMoney;
+        return Math.min(memberShipMoney, MEMBERSHIP_MAX_DISCOUNT);
     }
 
     public int promotionDiscount() {
