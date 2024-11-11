@@ -3,6 +3,8 @@ package store;
 import static exception.Exception.EXCEED_QUANTITY;
 import static exception.Exception.NON_EXIST_PRODUCT;
 import static exception.Exception.WRONG_INPUT;
+import static exception.Exception.throwException;
+import static util.ProductValidator.INVALID_FORMAT;
 import static view.InputView.handleRetryOnError;
 import static view.OutputView.MEMBERSHIP_BUY;
 import static view.OutputView.NOW;
@@ -13,9 +15,11 @@ import dto.Status;
 import exception.Exception;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import view.InputView;
 import view.OutputView;
 
@@ -27,6 +31,7 @@ public class Buyer {
     private static final String THANK_YOU_MORE_BUY = "\n감사합니다. 구매하고 싶은 다른 상품이 있나요? (Y/N)";
     private static final String BLANK_SEPARATOR = "====================================";
     private static final String PROMOTION_SEPARATOR = "=============증\t정===============";
+    private static final String DUPL_NAME = "[중복된 제품명] : ";
     private static final int MEMBERSHIP_MAX_DISCOUNT = 8000;
     private final InputView inputView;
     private final OutputView outputView;
@@ -89,11 +94,22 @@ public class Buyer {
     public List<Product> inputBuyProduct() {
         return handleRetryOnError(() -> {
             List<Product> wantBuyProducts = inputView.readItem();
+            checkDuplProductName(wantBuyProducts);
             productNameCheck(wantBuyProducts);
             checkPromotionApply(wantBuyProducts);
             checkCanBuyQuantity(wantBuyProducts);
             return wantBuyProducts;
         });
+    }
+
+    public void checkDuplProductName(List<Product> wantBuyProducts) {
+        Set<String> uniqueNames = new HashSet<>();
+        for (Product product : wantBuyProducts) {
+            String productName = product.getName();
+            if (!uniqueNames.add(productName)) {
+                throwException(INVALID_FORMAT + DUPL_NAME + productName);
+            }
+        }
     }
 
     public void productNameCheck(List<Product> wantBuyProducts) {
