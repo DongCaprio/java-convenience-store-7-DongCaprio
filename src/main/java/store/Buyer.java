@@ -37,7 +37,7 @@ public class Buyer {
     private final OutputView outputView;
     private final LinkedHashMap<String, List<Product>> products;
     private final Map<String, Promotion> promotions;
-    HashMap<String, Integer> receiptMap;
+    private Map<String, Integer> receiptMap;
     private Status memberShip;
 
     public Buyer() {
