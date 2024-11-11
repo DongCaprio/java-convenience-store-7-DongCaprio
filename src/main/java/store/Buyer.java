@@ -30,7 +30,7 @@ public class Buyer {
     private static final String PROMOTION_FILE_NAME = "promotions.md";
     private static final String THANK_YOU_MORE_BUY = "\n감사합니다. 구매하고 싶은 다른 상품이 있나요? (Y/N)";
     private static final String BLANK_SEPARATOR = "====================================";
-    private static final String PROMOTION_SEPARATOR = "=============증\t정===============";
+    private static final String PROMOTION_SEPARATOR = "=============증\t\t정===============";
     private static final String DUPL_NAME = "[중복된 제품명] : ";
     private static final int MEMBERSHIP_MAX_DISCOUNT = 8000;
     private final InputView inputView;

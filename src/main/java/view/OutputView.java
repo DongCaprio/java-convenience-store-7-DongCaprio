@@ -12,6 +12,18 @@ public class OutputView {
     public static final String NO_PROMOTION_BUY = "개는 프로모션 할인이 적용되지 않습니다. 그래도 구매하시겠습니까? (Y/N)";
     public static final String MEMBERSHIP_BUY = "\n멤버십 할인을 받으시겠습니까? (Y/N)";
     private static final String W_CONVENIENCE_STORE = "\n==============W 편의점================";
+    private static final String threeContentFormat = "%-8s\t%-4d\t%,d\n";
+    private static final String threeContentStringFormat = "%-8s\t%-4s\t%s\n";
+    private static final String twoContentMinusFormat = "%-12s\t\t-%,d\n";
+    private static final String twoContentFormat = "%-12s\t\t%,d\n";
+    private static final String twoContentFormat2 = "%-8s\t%-4d\n";
+    private static final String TOTAL_BUY_MONEY = "총구매액";
+    private static final String PROMOTION_DISCOUNT = "행사할인";
+    private static final String MEMBERSHIP_DISCOUNT = "멤버십할인";
+    private static final String SUM_MONEY = "내실돈";
+    private static final String PRODUCT_NAME = "상품명";
+    private static final String PRODUCT_QUANTITY = "수량";
+    private static final String PRODUCT_MONEY = "금액";
 
     public void printProducts(LinkedHashMap<String, List<Product>> products) {
         System.out.println(HELLO_MESSAGE);
@@ -36,25 +48,25 @@ public class OutputView {
     }
 
     public int printPurchaseReceipt(Product findProduct, Product wantBuyProduct) {
-        System.out.printf("%-10s %5d \t   %,d\n", findProduct.getName(), wantBuyProduct.getQuantity(),
+        System.out.printf(threeContentFormat, findProduct.getName(), wantBuyProduct.getQuantity(),
                 (wantBuyProduct.getQuantity() * findProduct.getPrice()));
         return wantBuyProduct.getQuantity() * findProduct.getPrice();
     }
 
     public void printFinalReceipt(int totalBuyCount, int totalMoney, int promotionDiscount, int memberShipDiscount) {
-        System.out.printf("총구매액\t\t\t%s\t%,d\n", totalBuyCount, totalMoney);
-        System.out.printf("행사할인\t\t\t\t-%,d\n", promotionDiscount);
-        System.out.printf("멤버십할인\t\t\t\t-%,d\n", memberShipDiscount);
-        System.out.printf("내실돈\t\t\t\t%,d\n", (totalMoney - promotionDiscount - memberShipDiscount));
+        System.out.printf(threeContentFormat, TOTAL_BUY_MONEY, totalBuyCount, totalMoney);
+        System.out.printf(twoContentMinusFormat, PROMOTION_DISCOUNT, promotionDiscount);
+        System.out.printf(twoContentMinusFormat, MEMBERSHIP_DISCOUNT, memberShipDiscount);
+        System.out.printf(twoContentFormat, SUM_MONEY, totalMoney - promotionDiscount - memberShipDiscount);
     }
 
     public void printFirstReceipt() {
         System.out.println(W_CONVENIENCE_STORE);
-        System.out.printf("%-10s\t%-5s\t%s\n", "상품명", "수량", "금액");
+        System.out.printf(threeContentStringFormat, PRODUCT_NAME, PRODUCT_QUANTITY, PRODUCT_MONEY);
     }
 
     public void printPresentReceipt(Product wantBuyProduct, int promotionCount) {
-        System.out.printf("%-10s %5d\n", wantBuyProduct.getName(), promotionCount);
+        System.out.printf(twoContentFormat2, wantBuyProduct.getName(), promotionCount);
     }
 
 }
